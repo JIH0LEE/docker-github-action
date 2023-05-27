@@ -11,7 +11,8 @@ on:
   push:
     branches: ["master"]
 env:
-  APP_VERSION: 0.1.1
+  NEW_APP_VERSION: 0.1.2
+  CONTAINER_NAME: api-server
 
 jobs:
   build:
@@ -39,4 +40,17 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker build -t ${{ secrets.DOCKER_REPO }}:$APP_VERSION .
         docker push ${{ secrets.DOCKER_REPO }}:$APP_VERSION
-    
+
+    - name: deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          password: ${{ secrets.WAS_PASSWORD }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          script: |
+            sudo docker stop $CONTAINER_NAME
+            sudo docker rm $CONTAINER_NAME
+            sudo docker rmi image $(docker images -q --filter "reference=${{ secrets.DOCKER_REPO }}")
+            sudo docker pull ${{ secrets.DOCKER_REPO }}:$APP_VERSION
+            sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME {{ secrets.DOCKER_REPO }}:$APP_VERSION
