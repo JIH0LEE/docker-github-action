@@ -54,13 +54,13 @@ jobs:
           sudo docker rm $CONTAINER_NAME
 
     - name: deploy step 2
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.WAS_HOST }}
-          username: ${{ secrets.WAS_USERNAME }}
-          password: ${{ secrets.WAS_PASSWORD }}
-          port: ${{ secrets.WAS_SSH_PORT }}
-          script: |
-            sudo docker rmi image $(sudo docker images -q --filter "reference=${{ secrets.DOCKER_REPO }}")
-            sudo docker pull ${{ secrets.DOCKER_REPO }}:$APP_VERSION
-            sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME {{ secrets.DOCKER_REPO }}:$APP_VERSION
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.WAS_HOST }}
+        username: ${{ secrets.WAS_USERNAME }}
+        password: ${{ secrets.WAS_PASSWORD }}
+        port: ${{ secrets.WAS_SSH_PORT }}
+        script: |
+          sudo docker rmi image $(sudo docker images -q --filter "reference=${{ secrets.DOCKER_REPO }}")
+          sudo docker pull ${{ secrets.DOCKER_REPO }}:$APP_VERSION
+          sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME {{ secrets.DOCKER_REPO }}:$APP_VERSION
