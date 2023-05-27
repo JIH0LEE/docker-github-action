@@ -10,6 +10,8 @@ name: API Server CI/CD
 on:
   push:
     branches: ["master"]
+env:
+  APP_VERSION: 0.1.1
 
 jobs:
   build:
@@ -35,6 +37,6 @@ jobs:
     - name: docker build and push
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_REPO }} .
-        docker push ${{ secrets.DOCKER_REPO }}
+        docker build -t ${{ secrets.DOCKER_REPO }}:$APP_VERSION .
+        docker push ${{ secrets.DOCKER_REPO }}:$APP_VERSION
     
