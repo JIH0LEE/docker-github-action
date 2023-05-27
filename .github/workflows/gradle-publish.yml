@@ -42,16 +42,25 @@ jobs:
         docker build -t ${{ secrets.DOCKER_REPO }}:$APP_VERSION .
         docker push ${{ secrets.DOCKER_REPO }}:$APP_VERSION
 
-    - name: deploy
+    - name: deploy step 1
       uses: appleboy/ssh-action@v0.1.6
       with:
         host: ${{ secrets.WAS_HOST }}
         username: ${{ secrets.WAS_USERNAME }}
         password: ${{ secrets.WAS_PASSWORD }}
         port: ${{ secrets.WAS_SSH_PORT }}
-      run: |
-        sudo docker stop $CONTAINER_NAME
-        sudo docker rm $CONTAINER_NAME
-        sudo docker rmi image $(sudo docker images -q --filter "reference=${{ secrets.DOCKER_REPO }}")
-        sudo docker pull ${{ secrets.DOCKER_REPO }}:$APP_VERSION
-        sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME {{ secrets.DOCKER_REPO }}:$APP_VERSION
+        script: |
+          sudo docker stop $CONTAINER_NAME
+          sudo docker rm $CONTAINER_NAME
+
+    - name: deploy step 2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          password: ${{ secrets.WAS_PASSWORD }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          script: |
+            sudo docker rmi image $(sudo docker images -q --filter "reference=${{ secrets.DOCKER_REPO }}")
+            sudo docker pull ${{ secrets.DOCKER_REPO }}:$APP_VERSION
+            sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME {{ secrets.DOCKER_REPO }}:$APP_VERSION
