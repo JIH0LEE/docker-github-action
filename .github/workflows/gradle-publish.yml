@@ -28,11 +28,11 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: sudo ./gradlew build
       
     - name: docker build and push
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_REPO }} .
-        docker push ${{ secrets.DOCKER_REPO }}
+        sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        sudo docker build -t ${{ secrets.DOCKER_REPO }} .
+        sudo docker push ${{ secrets.DOCKER_REPO }}
     
